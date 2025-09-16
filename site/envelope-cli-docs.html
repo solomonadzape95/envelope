@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envelope CLI — Secure .env Sharing</title>
+    <meta name="description" content="Envelope CLI: share, lock, and open environment variables with double-protection cryptography.">
+    <link
+  rel="icon"
+  type="image/svg+xml"
+  href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230052ff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='JetBrains Mono, monospace' font-size='42' fill='white'%3Ee%3C/text%3E%3C/svg%3E"
+/>
+<meta name="theme-color" content="#0052ff" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --base-blue: #0052ff;
+            --base-blue-hover: #0041cc;
+            --base-blue-light: rgba(0, 82, 255, 0.1);
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-300: #d4d4d4;
+            --neutral-400: #a3a3a3;
+            --neutral-500: #737373;
+            --neutral-600: #525252;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--neutral-50);
+            background-image: 
+                linear-gradient(rgba(0, 82, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 82, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--neutral-800);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 2px solid var(--neutral-200);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            background: var(--base-blue);
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-800);
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--neutral-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--base-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: white;
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--neutral-600);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            text-decoration: none;
+            border: 2px solid;
+            border-radius: 0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--base-blue);
+            color: white;
+            border-color: var(--base-blue);
+        }
+
+        .btn-primary:hover {
+            background: var(--base-blue-hover);
+            border-color: var(--base-blue-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--neutral-700);
+            border-color: var(--neutral-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--neutral-100);
+            border-color: var(--neutral-400);
+        }
+
+        /* Sections */
+        .section {
+            padding: 3rem 0;
+        }
+
+        .section-alt {
+            background: white;
+            border-top: 2px solid var(--neutral-200);
+            border-bottom: 2px solid var(--neutral-200);
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: 2rem;
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--neutral-900);
+            color: var(--neutral-100);
+            padding: 1rem;
+            border-radius: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 2px solid var(--neutral-800);
+        }
+
+        /* Grid layouts */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 2px solid var(--neutral-200);
+            padding: 1.5rem;
+            border-radius: 0;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--base-blue);
+        }
+
+        .card h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            color: var(--neutral-600);
+            margin-bottom: 1rem;
+        }
+
+        .card .code-block {
+            margin: 0.5rem 0 0;
+            font-size: 0.8rem;
+        }
+
+        /* Lists */
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--base-blue);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border-radius: 0;
+        }
+
+        .step-list strong {
+            display: block;
+            font-weight: 600;
+            color: var(--neutral-900);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--neutral-900);
+            color: var(--neutral-400);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav {
+                gap: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility classes */
+        .text-muted {
+            color: var(--neutral-500);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="brand">
+                    <div class="logo">e</div>
+                    <h1 class="title">Envelope CLI</h1>
+                </div>
+                <nav class="nav">
+                    <a class="nav-link" href="#install">Install</a>
+                    <a class="nav-link" href="#quickstart">Quick Start</a>
+                    <a class="nav-link" href="#features">Features</a>
+                    <a class="nav-link" href="#commands">Commands</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Share .env files without sharing secrets</h2>
+            <p class="hero-subtitle">
+                Envelope locks your environment with symmetric encryption and distributes per-user lockboxes with asymmetric keys. 
+                No secret ever needs to live on a server you don't control.
+            </p>
+            <div class="cta-group">
+                <a class="btn btn-primary" href="#install">Install Now</a>
+                <a class="btn btn-secondary" href="#quickstart">Get Started</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="install" class="section">
+        <div class="container">
+            <h2>Installation</h2>
+            <p class="text-muted mb-4">Install Envelope CLI globally via npm:</p>
+            <div class="code-block">npm i -g envelope-cli</div>
+            <p class="text-muted">Or install from source:</p>
+            <div class="code-block">npm run prepare
+npm i -g .</div>
+        </div>
+    </section>
+
+    <section id="quickstart" class="section section-alt">
+        <div class="container">
+            <h2>Quick Start</h2>
+            <ol class="step-list">
+                <li>
+                    <strong>Generate your keys</strong>
+                    <p class="text-muted">Creates a keypair and stores your username locally under ~/.envelope</p>
+                    <div class="code-block">envelope gen</div>
+                </li>
+                <li>
+                    <strong>Lock your .env</strong>
+                    <p class="text-muted">Run in your project directory containing .env to encrypt it</p>
+                    <div class="code-block">envelope lock</div>
+                </li>
+                <li>
+                    <strong>Open (decrypt) your .env</strong>
+                    <p class="text-muted">Decrypt and create a local .env file</p>
+                    <div class="code-block">envelope open</div>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <h2>Why Envelope? What's Different</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>Local-first trust model</h4>
+                    <p>Keys are generated and stored on your machine under <code>~/.envelope</code>. Your raw secrets never need to be uploaded to any third-party service.</p>
+                </div>
+                <div class="card">
+                    <h4>Double protection</h4>
+                    <p>Your <code>.env</code> is symmetrically encrypted, then the symmetric key is individually encrypted (lockboxes) with each teammate's public key.</p>
+                </div>
+                <div class="card">
+                    <h4>Simple CLI, no servers</h4>
+                    <p>No dashboards or SaaS—just files in your repo and a small local database. Works offline and fits existing Git workflows.</p>
+                </div>
+                <div class="card">
+                    <h4>Granular sharing</h4>
+                    <p>Share keys per project to specific users. Add or revoke recipients by updating lockboxes without re-sharing entire secrets.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="commands" class="section section-alt">
+        <div class="container">
+            <h2>Commands</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h4>gen</h4>
+                    <p>Generate local keypair and username.</p>
+                    <div class="code-block">envelope gen
+# options
+# --share &lt;NAME&gt;  --project &lt;REPO&gt;</div>
+                </div>
+                <div class="card">
+                    <h4>lock</h4>
+                    <p>Encrypt <code>.env</code> and create lockboxes for teammates.</p>
+                    <div class="code-block">envelope lock</div>
+                </div>
+                <div class="card">
+                    <h4>open</h4>
+                    <p>Decrypt encrypted env into a local <code>.env</code>.</p>
+                    <div class="code-block">envelope open</div>
+                </div>
+                <div class="card">
+                    <h4>share</h4>
+                    <p>Share your public key for a project with a team lead.</p>
+                    <div class="code-block">envelope share &lt;project&gt; &lt;team_leader&gt;</div>
+                </div>
+                <div class="card">
+                    <h4>pull</h4>
+                    <p>Pull keys shared with you.</p>
+                    <div class="code-block">envelope pull &lt;project&gt;</div>
+                </div>
+                <div class="card">
+                    <h4>update</h4>
+                    <p>Pull keys and re-lock your <code>.env</code> in one go.</p>
+                    <div class="code-block">envelope update &lt;project&gt;</div>
+                </div>
+            </div>
+            
+            <div class="text-center" style="margin-top: 2rem;">
+                <p class="text-muted">Get help anytime:</p>
+                <div class="code-block">envelope --help
+envelope &lt;command&gt; --help</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>Key Storage</h4>
+                    <p>Public/private keys are stored locally in <code>~/.envelope</code>. Team public keys are aggregated in <code>.envelope/envelope_keys.txt</code>.</p>
+                </div>
+                <div class="card">
+                    <h4>Symmetric Encryption</h4>
+                    <p>Your <code>.env</code> is symmetrically encrypted to <code>.envelope/envelope_enc.txt</code> for fast, secure bulk encryption.</p>
+                </div>
+                <div class="card">
+                    <h4>Asymmetric Lockboxes</h4>
+                    <p>The symmetric key is encrypted per-user (a lockbox) using their public key and stored in <code>.envelope/envelopes.txt</code>.</p>
+                </div>
+                <div class="card">
+                    <h4>Secure Sharing</h4>
+                    <p>Team members can decrypt their lockbox with their private key to access the symmetric key and decrypt the shared <code>.env</code>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>MIT Licensed · Envelope CLI · Secure environment variable sharing</p>
+        </div>
+    </footer>
+</body>
+</html>
