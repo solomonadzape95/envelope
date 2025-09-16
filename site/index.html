@@ -215,7 +215,27 @@
             overflow-x: auto;
             margin: 1rem 0;
             border: 2px solid var(--neutral-800);
+            position: relative;
         }
+
+        /* Copy button */
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--neutral-800);
+            color: var(--neutral-100);
+            border: 2px solid var(--neutral-700);
+            padding: 0.25rem 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 0;
+            opacity: 0.85;
+            transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+        }
+        .copy-btn:hover { opacity: 1; background: var(--neutral-700); border-color: var(--neutral-600); }
+        .copy-btn.copied { background: var(--base-blue); border-color: var(--base-blue); }
 
         /* Grid layouts */
         .grid {
@@ -349,7 +369,7 @@
             <div class="header-content">
                 <div class="brand">
                     <div class="logo">e</div>
-                    <h1 class="title">Envelope CLI</h1>
+                    <h1 class="title">Envelope</h1>
                 </div>
                 <nav class="nav">
                     <a class="nav-link" href="#install">Install</a>
@@ -381,7 +401,7 @@
             <p class="text-muted mb-4">Install Envelope CLI globally via npm:</p>
             <div class="code-block">npm i -g envelope-cli</div>
             <p class="text-muted">Or install from source:</p>
-            <div class="code-block">npm run prepare
+            <div class="code-block">npm run prepare && 
 npm i -g .</div>
         </div>
     </section>
@@ -473,8 +493,8 @@ npm i -g .</div>
             
             <div class="text-center" style="margin-top: 2rem;">
                 <p class="text-muted">Get help anytime:</p>
-                <div class="code-block">envelope --help
-envelope &lt;command&gt; --help</div>
+                <div class="code-block">envelope --help OR
+envelope &lt;command&gt; --help</div> 
             </div>
         </div>
     </section>
@@ -505,8 +525,49 @@ envelope &lt;command&gt; --help</div>
 
     <footer class="footer">
         <div class="container">
-            <p>MIT Licensed · Envelope CLI · Secure environment variable sharing</p>
+            <p>MIT Licensed · Envelope · Secure environment variable sharing</p>
         </div>
     </footer>
 </body>
+<script>
+// Enhance code blocks with copy buttons
+(function(){
+  function createButton(){
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    return btn;
+  }
+  function getBlockText(el){
+    // Preserve inner text exactly as shown
+    return el.textContent.replace(/\n+$/,'\n');
+  }
+  function attach(){
+    var blocks = document.querySelectorAll('.code-block');
+    blocks.forEach(function(block){
+      if(block.querySelector('.copy-btn')) return;
+      var btn = createButton();
+      btn.addEventListener('click', function(){
+        var text = getBlockText(block).replace("Copy","");
+        navigator.clipboard.writeText(text).then(function(){
+          var prev = btn.textContent;
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(function(){ btn.textContent = prev; btn.classList.remove('copied'); }, 1200);
+        }).catch(function(){
+          btn.textContent = 'Error';
+          setTimeout(function(){ btn.textContent = 'Copy'; }, 1200);
+        });
+      });
+      block.appendChild(btn);
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', attach);
+  } else {
+    attach();
+  }
+})();
+</script>
 </html>
