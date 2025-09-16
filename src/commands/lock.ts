@@ -11,7 +11,7 @@ export default function lockEnv(){
 
     command
     .name("lock")
-    .description("Locks .env variables into a .envelope/envelope_enc.txt file and creates lockboxes in .envelope/envelopes.txt with the team's public key")
+    .description("Locks .env variables into a envelope_enc.txt file and creates lockboxes in envelopes.txt with the team's public key")
     .action(safeAction(async ()=>{
         const {exists : userKeysExists, pub_key, username} = getUserDetails();
         const {exists : teamKeysExists, keys} = getTeamDetails()

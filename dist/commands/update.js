@@ -36,13 +36,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.update = update;
 const commander_1 = require("commander");
 const getters_1 = __importStar(require("../utils/getters"));
-const read_data_1 = require("../db/read_data");
 const setters_1 = require("../utils/setters");
 const symmetric_keys_1 = require("../utils/symmetric-keys");
 const asymmetric_keys_1 = require("../utils/asymmetric-keys");
 const inquirer_1 = require("../utils/inquirer");
 const spinner_1 = require("../utils/spinner");
 const errors_1 = require("../utils/errors");
+const api_1 = require("../utils/api");
 function update() {
     const command = new commander_1.Command();
     command
@@ -65,8 +65,9 @@ function update() {
             return;
         }
         await (0, spinner_1.withSpinner)(`Updating keys shared with ${username} for ${project}`, async () => {
-            const rows = await (0, read_data_1.readData)(project, username);
-            if (typeof (rows) === "string") {
+            const api = new api_1.ApiClient();
+            const rows = await api.listShareRecords({ project: project });
+            if (!rows || rows.length === 0) {
                 console.log("Seems there are no keys shared with you");
                 return;
             }
@@ -76,7 +77,7 @@ function update() {
                 await (0, setters_1.setKeys)(text);
             }
             const cwd = process.cwd();
-            const path = `${cwd}/.envelope/envelope_keys.txt`;
+            const path = `${cwd}/envelope_keys.txt`;
             console.log(`Pulled keys for project: ${project}`, `The keys are found at ${path}`);
             if (!teamKeysExists) {
                 const confirm = await (0, inquirer_1.ask)("You are encrypting the .env with just your key. Do you want to continue? y/n Default: 'y'", "confirm");

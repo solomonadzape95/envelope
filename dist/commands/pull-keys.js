@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pullKeys = pullKeys;
 const commander_1 = require("commander");
-const read_data_1 = require("../db/read_data");
 const getters_1 = __importDefault(require("../utils/getters"));
 const setters_1 = require("../utils/setters");
 const spinner_1 = require("../utils/spinner");
 const errors_1 = require("../utils/errors");
+const api_1 = require("../utils/api");
 function pullKeys() {
     const command = new commander_1.Command();
     command
@@ -26,18 +26,16 @@ function pullKeys() {
             throw new errors_1.UserError("Please enter a project name to pull keys for");
         }
         await (0, spinner_1.withSpinner)(`Pulling keys for '${project}'`, async () => {
-            const rows = await (0, read_data_1.readData)(project, username);
-            if (typeof (rows) === "string") {
-                throw new errors_1.UserError("Invalid data, Could not write .envelope/envelope_keys.txt file");
-            }
-            for (const row of rows) {
+            const api = new api_1.ApiClient();
+            const records = await api.listShareRecords({ project: project });
+            for (const row of records) {
                 const { shared_by, pub_key } = row;
                 const text = `${shared_by}=${pub_key}__\n`;
                 await (0, setters_1.setKeys)(text);
             }
         });
         const cwd = process.cwd();
-        const path = `${cwd}/.envelope/envelope_keys.txt`;
+        const path = `${cwd}/envelope_keys.txt`;
         console.log(`Pulled keys for project: ${project}`, `The keys are found at ${path}`);
         return;
     }));

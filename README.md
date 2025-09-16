@@ -16,27 +16,24 @@ npm i -g .
 ## Quick start
 ```bash
 # 1) Generate your keys (stores locally under ~/.envelope)
-envelope gen
+envelope gen <username>
 
-# 2) Encrypt your .env for yourself or your team
+# 2) Create envelope_keys file with your public key
+envelope share
+
+# 3) Encrypt your .env for yourself or your team
 #    Run in the project root where .env exists
 envelope lock
 
-# 3) Decrypt and create a local .env
+# 4) Decrypt and create a local .env
 envelope open
 ```
 
 ## Commands
-- `envelope gen`:
-  - Generate a keypair and store your username locally.
-  - Options:
-    - `--share <NAME>`: team lead/recipient
-    - `--project <REPO>`: project name associated with the share
+- `envelope gen <username>`: Generate a keypair and store your username locally.
+- `envelope share`: Create `envelope_keys.txt` file with your username and public key.
 - `envelope lock`: Encrypt `.env` into `.envelope/envelope_enc.txt` and create lockboxes for your team in `.envelope/envelopes.txt`.
-- `envelope open`: Decrypt `.envelope/envelope_enc.txt` using your lockbox and write a `.env`.
-- `envelope share <project> <team_leader>`: Share your public key for a project with a team leader.
-- `envelope pull <project>`: Pull keys shared with you for a project.
-- `envelope update <project>`: Pull keys and re-lock the `.env` in one go.
+- `envelope open`: Decrypt `.envelope/envelope_enc.txt` using your lockbox and write a `.env` in the current directory.
 
 Get help anytime:
 ```bash
@@ -49,6 +46,8 @@ envelope <command> --help
 - Team public keys are aggregated in `.envelope/envelope_keys.txt`.
 - Your `.env` is symmetrically encrypted to `.envelope/envelope_enc.txt`.
 - The symmetric key is encrypted per-user (a lockbox) using their public key and stored in `.envelope/envelopes.txt`.
+- All envelope-related files are organized in the `.envelope/` folder.
+- The decrypted `.env` file is created in the current working directory.
 
 ## Troubleshooting
 - No banner on install:

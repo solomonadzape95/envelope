@@ -45,7 +45,7 @@ function openEnv() {
     const command = new commander_1.Command();
     command
         .name("open")
-        .description("Opens the .envelope/envelopes.txt file , uses the lock key to unlock the .envelope/envelope_enc.txt file and create a .env file")
+        .description("Opens the envelopes.txt file , uses the lock key to unlock the envelope_enc.txt file and create a .env file")
         .action((0, errors_1.safeAction)(async () => {
         const { exists: userKeysExists, priv_key, username } = (0, getters_1.default)();
         const { exists: lockboxesExists, lockbox } = (0, getters_1.getLockboxes)();
@@ -55,11 +55,11 @@ function openEnv() {
             return;
         }
         if (!lockboxesExists) {
-            console.log("You do not have a .envelope/envelopes.txt file to decrypt in this directory", "Run 'envelope lock' to create one");
+            console.log("You do not have a envelopes.txt file to decrypt in this directory", "Run 'envelope lock' to create one");
             return;
         }
         if (!encryptedExists) {
-            console.log("You do not have a .envelope/envelope_enc.txt file to unlock in this directory", "Run 'envelope lock' to create one");
+            console.log("You do not have a envelope_enc.txt file to unlock in this directory", "Run 'envelope lock' to create one");
             return;
         }
         await (0, spinner_1.withSpinner)(`Opening .env for ${username}`, async () => {

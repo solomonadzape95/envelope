@@ -11,7 +11,7 @@ export function openEnv(){
 
     command
     .name("open")
-    .description("Opens the .envelope/envelopes.txt file , uses the lock key to unlock the .envelope/envelope_enc.txt file and create a .env file")
+    .description("Opens the envelopes.txt file , uses the lock key to unlock the envelope_enc.txt file and create a .env file")
     .action(safeAction(async () => {
         const {exists: userKeysExists, priv_key, username} = getUserDetails();
         const {exists: lockboxesExists, lockbox} = getLockboxes();
@@ -22,11 +22,11 @@ export function openEnv(){
             return
         }
         if(!lockboxesExists){
-            console.log("You do not have a .envelope/envelopes.txt file to decrypt in this directory", "Run 'envelope lock' to create one")
+            console.log("You do not have a envelopes.txt file to decrypt in this directory", "Run 'envelope lock' to create one")
             return
         }
         if(!encryptedExists){
-            console.log("You do not have a .envelope/envelope_enc.txt file to unlock in this directory", "Run 'envelope lock' to create one")
+            console.log("You do not have a envelope_enc.txt file to unlock in this directory", "Run 'envelope lock' to create one")
             return
         }
         await withSpinner(`Opening .env for ${username}`,async () => {

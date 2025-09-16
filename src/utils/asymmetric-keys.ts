@@ -1,9 +1,18 @@
 import { privateDecrypt, publicEncrypt } from "crypto";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import { join } from "path";
 
 export async function asymmetricEncrypt(text:string,pub_key: string, user:string){
     const cwd = process.cwd()
-    const path = `${cwd}/.envelope/envelopes.txt`
+    const envelopeDir = join(cwd, '.envelope')
+    
+    // Create .envelope directory if it doesn't exist
+    if (!existsSync(envelopeDir)) {
+        await mkdir(envelopeDir, { recursive: true })
+    }
+    
+    const path = join(envelopeDir, 'envelopes.txt')
     const fullKey = pub_key.includes('-----BEGIN PUBLIC KEY-----') 
     ? pub_key 
     : `-----BEGIN PUBLIC KEY-----\n${pub_key}\n-----END PUBLIC KEY-----`;

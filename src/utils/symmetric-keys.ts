@@ -1,12 +1,21 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import { join } from "path";
 
 
 export async function symmetricEncrypt(text:string){
     const iv_val = randomBytes(16)
     const key = randomBytes(32);
     const cwd = process.cwd()
-    const path = `${cwd}/.envelope/envelope_enc.txt`
+    const envelopeDir = join(cwd, '.envelope')
+    
+    // Create .envelope directory if it doesn't exist
+    if (!existsSync(envelopeDir)) {
+        await mkdir(envelopeDir, { recursive: true })
+    }
+    
+    const path = join(envelopeDir, 'envelope_enc.txt')
 
     const cipher = createCipheriv("aes-256-gcm", key, iv_val);
     let encrypted = cipher.update(text, "utf-8", "hex");

@@ -9,25 +9,39 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 function getTeamDetails() {
     const cwd = process.cwd();
-    const path = `${cwd}/.envelope/envelope_keys.txt`;
+    const path = (0, path_1.join)(cwd, '.envelope', 'envelope_keys.txt');
     const exists = (0, fs_1.existsSync)(path);
     if (!exists)
         return { exists };
     const fileContent = (0, fs_1.readFileSync)(path, { encoding: "utf8" });
-    const keys = fileContent
-        .split("\n")
-        .filter(line => line.trim().length > 0)
-        .map(line => {
-        const cleaned = line.endsWith("__") ? line.slice(0, -2) : line;
-        const [username, pub_key] = cleaned.split("=");
-        if (typeof username === "string" && typeof pub_key === "string") {
-            return { username, pub_key };
+    // Split by lines that start with a username (no leading whitespace and contains =)
+    const lines = fileContent.split("\n");
+    const keys = [];
+    let currentKey = null;
+    for (const line of lines) {
+        if (line.trim() === "")
+            continue;
+        // Check if this line starts a new key (contains = and doesn't start with whitespace)
+        if (line.includes("=") && !line.startsWith(" ") && !line.startsWith("\t")) {
+            // Save previous key if exists
+            if (currentKey && currentKey.username && currentKey.pub_key) {
+                keys.push(currentKey);
+            }
+            // Start new key
+            const equalIndex = line.indexOf("=");
+            const username = line.substring(0, equalIndex);
+            const pub_key = line.substring(equalIndex + 1);
+            currentKey = { username, pub_key };
         }
-        else {
-            return { username: "", pub_key: "" };
+        else if (currentKey) {
+            // This is a continuation of the current key
+            currentKey.pub_key += "\n" + line;
         }
-    })
-        .filter(key => key.username !== "" && key.pub_key !== "");
+    }
+    // Add the last key if it exists
+    if (currentKey && currentKey.username && currentKey.pub_key) {
+        keys.push(currentKey);
+    }
     return { keys, exists };
 }
 function getUserDetails() {
@@ -71,7 +85,7 @@ function getEnvDetails() {
 }
 function getLockboxes() {
     const cwd = process.cwd();
-    const path = `${cwd}/.envelope/envelopes.txt`;
+    const path = (0, path_1.join)(cwd, '.envelope', 'envelopes.txt');
     const exists = (0, fs_1.existsSync)(path);
     if (!exists)
         return { exists };
@@ -99,7 +113,7 @@ function getLockboxes() {
 }
 function getEncryptedEnv() {
     const cwd = process.cwd();
-    const path = `${cwd}/.envelope/envelope_enc.txt`;
+    const path = (0, path_1.join)(cwd, '.envelope', 'envelope_enc.txt');
     const exists = (0, fs_1.existsSync)(path);
     if (!exists)
         return { exists };

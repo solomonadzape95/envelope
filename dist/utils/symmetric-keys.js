@@ -4,11 +4,18 @@ exports.symmetricEncrypt = symmetricEncrypt;
 exports.symmetricDecrypt = symmetricDecrypt;
 const crypto_1 = require("crypto");
 const promises_1 = require("fs/promises");
+const fs_1 = require("fs");
+const path_1 = require("path");
 async function symmetricEncrypt(text) {
     const iv_val = (0, crypto_1.randomBytes)(16);
     const key = (0, crypto_1.randomBytes)(32);
     const cwd = process.cwd();
-    const path = `${cwd}/.envelope/envelope_enc.txt`;
+    const envelopeDir = (0, path_1.join)(cwd, '.envelope');
+    // Create .envelope directory if it doesn't exist
+    if (!(0, fs_1.existsSync)(envelopeDir)) {
+        await (0, promises_1.mkdir)(envelopeDir, { recursive: true });
+    }
+    const path = (0, path_1.join)(envelopeDir, 'envelope_enc.txt');
     const cipher = (0, crypto_1.createCipheriv)("aes-256-gcm", key, iv_val);
     let encrypted = cipher.update(text, "utf-8", "hex");
     encrypted += cipher.final("hex");

@@ -1,6 +1,6 @@
 {
   "name": "envelope-cli",
-  "version": "1.1.3",
+  "version": "1.1.5",
   "description": "A CLI tool for sharing and encrypting environment variables using a unique double-protection technique. Your secrets are never just stored, but safeguarded with locally managed, doubly encrypted keys.",
   "main": "dist/index.js",
   "bin": {
@@ -11,7 +11,6 @@
     "prepare": "tsc -p tsconfig.json",
     "prepublishOnly": "tsc -p tsconfig.json",
     "postinstall": "echo"
-    
   },
   "keywords": [],
   "author": "",
@@ -29,7 +28,11 @@
     "inquirer": "^12.9.4",
     "pg": "^8.16.3"
   },
-  "files":["dist","README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=16.0.0"
   }

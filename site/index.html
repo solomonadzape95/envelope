@@ -413,7 +413,12 @@ npm i -g .</div>
                 <li>
                     <strong>Generate your keys</strong>
                     <p class="text-muted">Creates a keypair and stores your username locally under ~/.envelope</p>
-                    <div class="code-block">envelope gen</div>
+                    <div class="code-block">envelope gen &lt;username&gt;</div>
+                </li>
+                <li>
+                    <strong>Share your public key</strong>
+                    <p class="text-muted">Create envelope_keys.txt file with your username and public key</p>
+                    <div class="code-block">envelope share</div>
                 </li>
                 <li>
                     <strong>Lock your .env</strong>
@@ -446,8 +451,8 @@ npm i -g .</div>
                     <p>No dashboards or SaaS—just files in your repo and a small local database. Works offline and fits existing Git workflows.</p>
                 </div>
                 <div class="card">
-                    <h4>Granular sharing</h4>
-                    <p>Share keys per project to specific users. Add or revoke recipients by updating lockboxes without re-sharing entire secrets.</p>
+                    <h4>Simple file-based sharing</h4>
+                    <p>Team members create envelope_keys.txt files with their public keys. All keys are organized in the .envelope folder for easy management.</p>
                 </div>
             </div>
         </div>
@@ -460,9 +465,12 @@ npm i -g .</div>
                 <div class="card">
                     <h4>gen</h4>
                     <p>Generate local keypair and username.</p>
-                    <div class="code-block">envelope gen
-# options
-# --share &lt;NAME&gt;  --project &lt;REPO&gt;</div>
+                    <div class="code-block">envelope gen &lt;username&gt;</div>
+                </div>
+                <div class="card">
+                    <h4>share</h4>
+                    <p>Create envelope_keys.txt file with your username and public key.</p>
+                    <div class="code-block">envelope share</div>
                 </div>
                 <div class="card">
                     <h4>lock</h4>
@@ -473,21 +481,6 @@ npm i -g .</div>
                     <h4>open</h4>
                     <p>Decrypt encrypted env into a local <code>.env</code>.</p>
                     <div class="code-block">envelope open</div>
-                </div>
-                <div class="card">
-                    <h4>share</h4>
-                    <p>Share your public key for a project with a team lead.</p>
-                    <div class="code-block">envelope share &lt;project&gt; &lt;team_leader&gt;</div>
-                </div>
-                <div class="card">
-                    <h4>pull</h4>
-                    <p>Pull keys shared with you.</p>
-                    <div class="code-block">envelope pull &lt;project&gt;</div>
-                </div>
-                <div class="card">
-                    <h4>update</h4>
-                    <p>Pull keys and re-lock your <code>.env</code> in one go.</p>
-                    <div class="code-block">envelope update &lt;project&gt;</div>
                 </div>
             </div>
             

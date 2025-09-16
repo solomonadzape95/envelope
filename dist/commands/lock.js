@@ -45,7 +45,7 @@ function lockEnv() {
     const command = new commander_1.Command();
     command
         .name("lock")
-        .description("Locks .env variables into a .envelope/envelope_enc.txt file and creates lockboxes in .envelope/envelopes.txt with the team's public key")
+        .description("Locks .env variables into a envelope_enc.txt file and creates lockboxes in envelopes.txt with the team's public key")
         .action((0, errors_1.safeAction)(async () => {
         const { exists: userKeysExists, pub_key, username } = (0, getters_1.default)();
         const { exists: teamKeysExists, keys } = (0, getters_1.getTeamDetails)();

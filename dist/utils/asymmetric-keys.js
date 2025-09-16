@@ -4,9 +4,16 @@ exports.asymmetricEncrypt = asymmetricEncrypt;
 exports.asymmetricDecrypt = asymmetricDecrypt;
 const crypto_1 = require("crypto");
 const promises_1 = require("fs/promises");
+const fs_1 = require("fs");
+const path_1 = require("path");
 async function asymmetricEncrypt(text, pub_key, user) {
     const cwd = process.cwd();
-    const path = `${cwd}/.envelope/envelopes.txt`;
+    const envelopeDir = (0, path_1.join)(cwd, '.envelope');
+    // Create .envelope directory if it doesn't exist
+    if (!(0, fs_1.existsSync)(envelopeDir)) {
+        await (0, promises_1.mkdir)(envelopeDir, { recursive: true });
+    }
+    const path = (0, path_1.join)(envelopeDir, 'envelopes.txt');
     const fullKey = pub_key.includes('-----BEGIN PUBLIC KEY-----')
         ? pub_key
         : `-----BEGIN PUBLIC KEY-----\n${pub_key}\n-----END PUBLIC KEY-----`;
